@@ -1,0 +1,7 @@
+os: 
+  - windows
+language: c
+install: make get-deps
+compiler:
+  - clang
+  - gcc 
