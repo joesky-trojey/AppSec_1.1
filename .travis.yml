@@ -1,5 +1,4 @@
-os: 
-  - windows
+os: windows
 language: c
 install: make get-deps
 compiler:
