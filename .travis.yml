@@ -4,3 +4,7 @@ install: make get-deps
 compiler:
   - clang
   - gcc 
+script:
+    - sudo apt-get install check
+    - sudo apt-get install build-essential
+    - make && make test
