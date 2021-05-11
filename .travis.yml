@@ -6,8 +6,6 @@ before_install:
   - test -n $CC && unset CC
   - eval "${MATRIX_EVAL}"
 
-install: make get-deps
-
 compiler: gcc 
 
 script:
