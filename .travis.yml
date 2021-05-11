@@ -1,5 +1,18 @@
+os: linux
+
 language: c
-compiler:
-  - clang
-  - gcc 
-script: make
+
+before_install:
+  - test -n $CC && unset CC
+  - eval "${MATRIX_EVAL}"
+
+install: make get-deps
+
+compiler: gcc 
+
+script:
+  - make
+  - make run_tests
+
+notifications:
+  email: false
