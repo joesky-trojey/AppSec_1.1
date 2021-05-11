@@ -10,7 +10,6 @@ compiler: gcc
 
 script:
   - make
-  - make run_tests
 
 notifications:
   email: false
