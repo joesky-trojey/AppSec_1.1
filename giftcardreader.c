@@ -2,14 +2,15 @@
  * Gift Card Reading Application
  * Original Author: Shoddycorp's Cut-Rate Contracting
  * Comments added by: Justin Cappos (JAC) and Brendan Dolan-Gavitt (BDG)
- * Maintainer:
+ * Maintainer: Kevin Zhang
  * Date: 8 July 2020
  */
 
 
 #include "giftcard.h"
-
 #include <stdio.h>
+//KZ: Need to add in String.h as per compiler error
+#include <string.h>
 #include <strings.h>
 
 // interpreter for THX-1138 assembly
@@ -65,6 +66,8 @@ void animate(char *msg, unsigned char *program) {
 done:
     return;
 }
+//KZ: Adding in this extra int-declaration resolves second run-time error
+int get_gift_card_value (struct this_gift_card *thisone);
 
 void print_gift_card_info(struct this_gift_card *thisone) {
 	struct gift_card_data *gcd_ptr;

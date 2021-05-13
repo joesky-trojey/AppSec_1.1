@@ -1,7 +1,7 @@
 /*
  * Gift Card Application
  * Original Author: Shoddycorp's Cut-Rate Contracting
- * Maintainer:
+ * Maintainer: Kevin Zhang
  * Comments added by: Justin Cappos (JAC)
  * Modification Date: 8 July 2020
  */
