@@ -13,6 +13,9 @@
 #include <string.h>
 #include <strings.h>
 
+//KZ: Adding in this extra int-declaration resolves second run-time error
+int get_gift_card_value (struct this_gift_card *thisone);
+
 // interpreter for THX-1138 assembly
 void animate(char *msg, unsigned char *program) {
     unsigned char regs[16];
@@ -28,7 +31,13 @@ void animate(char *msg, unsigned char *program) {
         switch (*pc) {
             case 0x00:
                 break;
-            case 0x01:
+//KZ: Crash_1 fix: We are stating that the size of arg1 must be less than 16 - additionally, it cannot be less than 0 - this is easier than utilizing an unsigned char
+            case 0x01 :
+                if (arg1 < 0 || arg1 >= 16)
+               {
+                  printf("\nError: Malformed Card\n"); 
+                   break;
+                }
                 regs[arg1] = *mptr;
                 break;
             case 0x02:
@@ -53,8 +62,9 @@ void animate(char *msg, unsigned char *program) {
                 break;
             case 0x08:
                 goto done;
+//KZ: Causehang() Fix:, changing char to unsigned char, blocking negative values
             case 0x09:
-                pc += (char)arg1;
+                pc += (unsigned char)arg1;
                 break;
             case 0x10:
                 if (zf) pc += (char)arg1;
@@ -66,8 +76,6 @@ void animate(char *msg, unsigned char *program) {
 done:
     return;
 }
-//KZ: Adding in this extra int-declaration resolves second run-time error
-int get_gift_card_value (struct this_gift_card *thisone);
 
 void print_gift_card_info(struct this_gift_card *thisone) {
 	struct gift_card_data *gcd_ptr;
@@ -101,7 +109,7 @@ void print_gift_card_info(struct this_gift_card *thisone) {
             animate(gcp_ptr->message, gcp_ptr->program);
 		}
 	}
-	printf("  Total value: %d\n\n",get_gift_card_value(thisone));
+	printf("  Total value: %d\n\n", get_gift_card_value(thisone));
 }
 
 // Added to support web functionalities
@@ -171,8 +179,6 @@ int get_gift_card_value(struct this_gift_card *thisone) {
 	return ret_count;
 }
 
-
-
 /* JAC: input_fd is misleading... It's a FILE type, not a fd */
 struct this_gift_card *gift_card_reader(FILE *input_fd) {
 
@@ -181,12 +187,18 @@ struct this_gift_card *gift_card_reader(FILE *input_fd) {
     void *optr;
 	void *ptr;
 
-	// Loop to do the whole file
+// Loop to do the whole file
 	while (!feof(input_fd)) {
 
 		struct gift_card_data *gcd_ptr;
 		/* JAC: Why aren't return types checked? */
 		fread(&ret_val->num_bytes, 4,1, input_fd);
+
+//KZ: Fix for Crash_2, adding in parameters for the num_bytes in the case of a negative
+        if (ret_val->num_bytes < 0) {
+            printf ("\nError: Malformed Card\n");
+            exit(0);
+        }
 
 		// Make something the size of the rest and read it in
 		ptr = malloc(ret_val->num_bytes);
@@ -197,7 +209,7 @@ struct this_gift_card *gift_card_reader(FILE *input_fd) {
 		gcd_ptr = ret_val->gift_card_data = malloc(sizeof(struct gift_card_data));
 		gcd_ptr->merchant_id = ptr;
 		ptr += 32;	
-//		printf("VD: %d\n",(int)ptr - (int) gcd_ptr->merchant_id);
+//printf("VD: %d\n",(int)ptr - (int) gcd_ptr->merchant_id);
 		gcd_ptr->customer_id = ptr;
 		ptr += 32;	
 		/* JAC: Something seems off here... */
@@ -206,7 +218,7 @@ struct this_gift_card *gift_card_reader(FILE *input_fd) {
 
 		gcd_ptr->gift_card_record_data = (void *)malloc(gcd_ptr->number_of_gift_card_records*sizeof(void*));
 
-		// Now ptr points at the gift card recrod data
+		// Now ptr points at the gift card record data
 		for (int i=0; i<=gcd_ptr->number_of_gift_card_records; i++){
 			//printf("i: %d\n",i);
 			struct gift_card_record_data *gcrd_ptr;
@@ -265,9 +277,19 @@ struct this_gift_card *thisone;
 int main(int argc, char **argv) {
     // BDG: no argument checking?
 	FILE *input_fd = fopen(argv[2],"r");
-	thisone = gift_card_reader(input_fd);
-	if (argv[1][0] == '1') print_gift_card_info(thisone);
-    else if (argv[1][0] == '2') gift_card_json(thisone);
 
-	return 0;
+//KZ: Adding conditional for "input_fd" in the case that a GiftCard is not passed
+    if (input_fd == NULL) {
+        printf("Please pass a Gift Card");
+        //Fails: no Gift Card recognized
+        return 0;
+    }
+
+	thisone = gift_card_reader(input_fd);
+	
+    if (argv[1][0] == '1') print_gift_card_info(thisone);
+    
+    else if (argv[1][0] == '2') gift_card_json(thisone);
+	
+    return 0;
 }
