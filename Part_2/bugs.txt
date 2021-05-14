@@ -1,11 +1,13 @@
-//Crash 1 - 
-//
-//
-//Crash 2 - 
-//
-//
-//Hang - 
-//
-//
-//
-//
+Crash_1:
+
+This initial has to do with the op-code 0x01 function on line 30 of "giftcardreader.c". After examining the code, I noticed that 0x01 pushes forward "regs[arg1] = *mptr".  Mptr is a pointer for the beginning of the message data, while arg1 provides the value for the register (e.g. regs[]). 
+
+Similar to the hang case below, this function interfaces with the "arg1 value" of the giftcard. If we set the arg1 value to anything higher than 16-bytes (storage capacity), we can trigger a segmentation fault and crash the program - this is due to a uffer overflow.
+
+Crash_2:
+
+This crash is caused by setting "num_bytes" section of 'giftcardwriter.c' to anything aside from a normal integer. Inputting a large negative number (e.g. -1234) creates a malformed giftcard that can cause the malloc to break in 'giftcardreader.c', as this is outside the range of integers accepted. Giftcardexample.num_bytes stores the negative number, which is then used for memory allocation within the reader code. If we try to run the malformed giftcard, we receive a segmentation fault (outputted by Travis when running it through a GitHub push), due to the fact that the fread cannot read anything negative. Adding in error handling for the negative number will cause the program to exit without crashing, while also informing the user of the error.
+
+Hang:
+
+The hanging program is leveraging a new function, titled causehang() in "giftcardwriter.gft," to force the program to loop instructions. This specifically refers to case op-code 0x09, referring to animate function. We alter the number of records of the card from 1 to 3 in this case, causing a loop (no chance of exit, error, or satisfying a condition). This is namely due to the presence of arg1 (in the line "pc += (char)arg1," line 64). Arg1 accepts 8bit interger values; however, does not know how to read extraneous information - an extra byte registers as a "-" sign. Because of case op-code 0x09, memory location will keep increasing by "3" until a limit has been reached (256). If we input a specific Arg1 value (in this case 250), memory location will decrease, increase, and decrease again due to actions conducted in the beginning and end of the while loop (lines 22-61).  Our fix, therefore, is to alter arg1 (specifically the code on line 64) to be and unsigned character, that would break in the case of a negative value.
