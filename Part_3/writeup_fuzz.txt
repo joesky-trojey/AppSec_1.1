@@ -5,9 +5,7 @@ After running gcc --coverage on giftcardreader.c, and testing the existing crash
 In our second coverage report, we noticed that at the end of the code, there specifically is a function that accepts type 2 records (calling the gift_card_json file instead of the print_gift_card_file). Keeping this code in mind ("else if (argv[1][0] == '2') gift_card_json(thisone);") we run a simple examplefile.gft that utilizes a type 2 record, rather than a type 1 record. Although a simple fix, we wanted to make sure we maximized the coverage. This produced a minimal coverage as well.
 
 //Fuzzer_1 - 
-After running our AFL fuzzer for more than two hours, we selected two Fuzzer giftcard files that best improve our code. 
-
-
-
+After running our AFL fuzzer for more than two hours, we selected two Fuzzer giftcard files that best improve our code. We found a afl-fuzz hang bug, which causes the program to enter a contious cycle of sending and receiving instructrions, similar to the last example. We found that the main reason this occurs is because of a value within the .gft file, which ultimately comes from another unsigned char. After we prevent the writing of a negative value, we found that the program was able to work.
 
 //Fuzzer_2 - 
+A crash found by AFL fuzzer specifically has to do with opcode 0x04, 0x06 - this creates a buffer overflow (similar to a crash found in the the previous set of crashes) and stops the program without exiting. We attempted the fix by specifying exactly which bounds for those op-code cases args1 needs to fall under. This, paired with changing chars to unsigned char seem to be a major fault in the program. 

@@ -13,14 +13,15 @@ giftcardreader: giftcardreader.c
 	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 2 Part_2/hang.gft
 
 #Part 3
+#	GCC Coverage
 	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 1 Part_3/cov_1.gft
 	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 1 Part_3/cov_2.gft
 
-#	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 1 Part_3/fuzzer_1.gft
-#	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 2 Part_3/fuzzer_1.gft
-
-#	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 1 Part_3/fuzzer_2.gft
-#	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 2 Part_3/fuzzer_2.gft
+#	Fuzzer
+	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 1 Part_3/fuzzer_1.gft
+	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 2 Part_3/fuzzer_1.gft
+	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 1 Part_3/fuzzer_2.gft
+	gcc -o giftcardreader giftcardreader.c && ./giftcardreader 2 Part_3/fuzzer_2.gft
 
 giftcardexamplewriter:
 	gcc -o giftcardexamplewriter giftcardexamplewriter.c && ./giftcardexamplewriter

@@ -31,11 +31,11 @@ void animate(char *msg, unsigned char *program) {
         switch (*pc) {
             case 0x00:
                 break;
-//KZ: Crash_1 fix: We are stating that the size of arg1 must be less than 16 - additionally, it cannot be less than 0 - this is easier than utilizing an unsigned char
+//KZ: Crash_1 fix: We are stating that the length of arg1 must be less than 16 - additionally, it cannot be less than 0 - this is easier than utilizing an unsigned char
             case 0x01 :
                 if (arg1 < 0 || arg1 >= 16)
                {
-                  printf("\nError: Malformed Card\n"); 
+                   printf("\nError: Malformed Card\n"); 
                    break;
                 }
                 regs[arg1] = *mptr;
@@ -44,18 +44,25 @@ void animate(char *msg, unsigned char *program) {
                 *mptr = regs[arg1];
                 break;
             case 0x03:
-                mptr += (char)arg1;
+//KZ: Fuzzer_1.gft fix: changing to unsigned char to fix        
+                mptr += (unsigned char)arg1;
                 break;
             case 0x04:
-                regs[arg2] = arg1;
+//KZ: Fuzzer_2.gft fix: need to create better bounds for arg1          
+                if (arg1 < 16 && arg2 < 16) {
+                    regs[arg2] = arg1;
+                }
                 break;
             case 0x05:
                 regs[arg1] ^= regs[arg2];
                 zf = !regs[arg1];
                 break;
             case 0x06:
-                regs[arg1] += regs[arg2];
-                zf = !regs[arg1];
+//KZ: Fuzzer_2.gft fix: need to create better bounds for arg1     
+                if (arg1 < 16 && arg2 < 16) {
+                    regs[arg1] += regs[arg2];
+                    zf = !regs[arg1];
+                }
                 break;
             case 0x07:
                 puts(msg);
@@ -65,9 +72,10 @@ void animate(char *msg, unsigned char *program) {
 //KZ: Causehang() Fix:, changing char to unsigned char, blocking negative values
             case 0x09:
                 pc += (unsigned char)arg1;
-                break;
+                break;  
+//KZ: Fuzzer_1.gft fix: changing to unsigned char to fix              
             case 0x10:
-                if (zf) pc += (char)arg1;
+                if (zf) pc += (unsigned char)arg1;
                 break;
         }
         pc+=3;
