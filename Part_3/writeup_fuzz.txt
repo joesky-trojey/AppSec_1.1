@@ -1,11 +1,13 @@
-//Crash 1 - 
-//
-//
-//Crash 2 - 
-//
-//
-//Hang - 
-//
-//
-//
-//
+//Coverage 1- 
+After running gcc --coverage on giftcardreader.c, and testing the existing crashes and hangs, we were able to see that there was about 46.6% of the code that was uncovered. Many of our test cases did not touch the "opcode" section. Our hang.gft error was the closes, noticing that a never ending loop of sending and receiving information can be achieved if we took advantage of a vulnerability in 0x09. In our coverage case (as 0x02 - 0x07, 0x09 were all uncovered), we sought to emulate the hang.gft; instead, we simply changed the type_of_record setting in the giftcard from 1, to 3. This specifically references animate function. While the coverage is minimal, there is an increase in line coverage (functiuon coverage remains the same).
+
+//Coverage 2- 
+In our second coverage report, we noticed that at the end of the code, there specifically is a function that accepts type 2 records (calling the gift_card_json file instead of the print_gift_card_file). Keeping this code in mind ("else if (argv[1][0] == '2') gift_card_json(thisone);") we run a simple examplefile.gft that utilizes a type 2 record, rather than a type 1 record. Although a simple fix, we wanted to make sure we maximized the coverage. This produced a minimal coverage as well.
+
+//Fuzzer_1 - 
+After running our AFL fuzzer for more than two hours, we selected two Fuzzer giftcard files that best improve our code. 
+
+
+
+
+//Fuzzer_2 - 
